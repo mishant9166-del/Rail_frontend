@@ -346,7 +346,55 @@ export const Dashboard: React.FC = () => {
   return (
     <div className="space-y-6 pb-12">
       
-      {/* 1. Compact Historical Context Toolbar */}
+      {/* 1. Quick Status Secondary Header */}
+      <div className="flex flex-wrap gap-3 bg-surface p-3 rounded-xl border border-border shadow-sm mb-6">
+        {/* Network Level */}
+        <div className="flex items-center gap-2 bg-successBg text-success px-3 py-1.5 rounded-lg border border-success/20 flex-1 min-w-[200px]">
+          <Activity className="w-4 h-4 shrink-0" />
+          <div className="flex flex-col">
+            <span className="text-[10px] uppercase font-bold opacity-80">Network Status</span>
+            <span className="text-xs font-bold">Level 1: Normal Ops</span>
+          </div>
+        </div>
+
+        {/* AI Core */}
+        <div className="flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-lg border border-primary/20 flex-1 min-w-[200px]">
+          <Target className="w-4 h-4 shrink-0" />
+          <div className="flex flex-col">
+            <span className="text-[10px] uppercase font-bold opacity-80">AI Core Health</span>
+            <span className="text-xs font-bold">Systems 1-3 Online (99.8%)</span>
+          </div>
+        </div>
+
+        {/* Maintenance Blocks */}
+        <div className="flex items-center gap-2 bg-warningBg text-warning px-3 py-1.5 rounded-lg border border-warning/20 flex-1 min-w-[200px]">
+          <AlertTriangle className="w-4 h-4 shrink-0" />
+          <div className="flex flex-col">
+            <span className="text-[10px] uppercase font-bold opacity-80">Active Blocks</span>
+            <span className="text-xs font-bold">2 Maintenance Zones</span>
+          </div>
+        </div>
+
+        {/* Weather Alerts */}
+        <div className="flex items-center gap-2 bg-criticalBg text-critical px-3 py-1.5 rounded-lg border border-critical/20 flex-1 min-w-[200px]">
+          <Info className="w-4 h-4 shrink-0" />
+          <div className="flex flex-col">
+            <span className="text-[10px] uppercase font-bold opacity-80">Weather Alerts</span>
+            <span className="text-xs font-bold">1 Fog Warning (Northern)</span>
+          </div>
+        </div>
+
+        {/* OHE Power Grid */}
+        <div className="flex items-center gap-2 bg-blue-500/10 text-blue-500 px-3 py-1.5 rounded-lg border border-blue-500/20 flex-1 min-w-[200px]">
+          <Activity className="w-4 h-4 shrink-0" />
+          <div className="flex flex-col">
+            <span className="text-[10px] uppercase font-bold opacity-80">OHE Grid</span>
+            <span className="text-xs font-bold">Stable @ 25kV</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. Compact Historical Context Toolbar */}
       {/* <MonthContextSelector simTime={simTime} /> */}
 
       {/* Train Search UI */}
