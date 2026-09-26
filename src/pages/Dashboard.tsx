@@ -330,15 +330,15 @@ export const Dashboard: React.FC = () => {
   const delayedPct = activeCount ? Math.round((delayedCount / activeCount) * 100) : 0;
   const criticalPct = activeCount ? Math.round((criticalCount / activeCount) * 100) : 0;
 
-  const routeNames = ['Delhi -> Dehradun', 'Delhi -> Agra', 'Delhi -> Lucknow'];
-  const routeStats = routeNames.map(route => {
+  const uniqueRoutes = Array.from(new Set(liveTrains.map(t => t.route))).filter(Boolean);
+  const routeStats = uniqueRoutes.map(route => {
     const trains = liveTrains.filter(t => t.route === route);
     const count = trains.length;
     const avgDelay = count ? (trains.reduce((sum, t) => sum + t.delayMin, 0) / count).toFixed(1) : "0.0";
     const onTimeRoute = trains.filter(t => t.status === 'ON_TIME').length;
     const onTimeRoutePct = count ? Math.round((onTimeRoute / count) * 100) : 0;
     return { route, count, avgDelay: parseFloat(avgDelay), onTimePct: onTimeRoutePct, onTime: onTimeRoutePct >= 50 };
-  });
+  }).sort((a, b) => b.count - a.count).slice(0, 6); // Top 6 busiest routes
 
   const latestTrain = liveTrains[0];
   const simTime = latestTrain?.simTime || '06:45:00';
@@ -347,7 +347,7 @@ export const Dashboard: React.FC = () => {
     <div className="space-y-6 pb-12">
       
       {/* 1. Compact Historical Context Toolbar */}
-      <MonthContextSelector simTime={simTime} />
+      {/* <MonthContextSelector simTime={simTime} /> */}
 
       {/* Train Search UI */}
       <div className="mb-6">
@@ -365,8 +365,9 @@ export const Dashboard: React.FC = () => {
 
       {/* 3. Route Summaries */}
       <div>
-        <h3 className="text-xs font-bold text-textMuted mb-3 uppercase tracking-wider">
-          Corridor Performance Summary
+        <h3 className="text-xs font-bold text-textMuted mb-3 uppercase tracking-wider flex items-center gap-2">
+          <Activity className="w-4 h-4 text-primary" />
+          Top Busiest Corridors (Live)
         </h3>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {routeStats.map(stat => (
