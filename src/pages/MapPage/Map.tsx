@@ -69,6 +69,7 @@ export const MapView: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
   const [liveTrainSearchText, setLiveTrainSearchText] = useState('');
+  const [selectedZone, setSelectedZone] = useState('All');
   const [visibleTrainsCount, setVisibleTrainsCount] = useState(15);
   const [toStationId, setToStationId] = useState<string | null>(null);
   const [selectedPathIndex, setSelectedPathIndex] = useState(0);
@@ -469,6 +470,12 @@ let globalTimetable: any = null;
         
         const speed = 75 + (index % 20) + (Math.sin(mockTick + index) * 5);
         
+        let zone = 'Central';
+        if (coords[1] > 26) zone = 'Northern';
+        else if (coords[1] < 18) zone = 'Southern';
+        else if (coords[0] > 82) zone = 'Eastern';
+        else if (coords[0] < 75) zone = 'Western';
+        
         return {
           id,
           name: t.n,
@@ -478,7 +485,8 @@ let globalTimetable: any = null;
           currentLocation: coords,
           currentLocationName: currentStopName || 'En route',
           currentSpeed: speed,
-          confidence: 85 + (index % 10)
+          confidence: 85 + (index % 10),
+          zone
         };
       });
     } else {
@@ -487,7 +495,17 @@ let globalTimetable: any = null;
        for (const train of liveTrains) {
          if (!uniqueNames.has(train.name)) {
             uniqueNames.add(train.name);
-            deduplicatedLiveTrains.push(train);
+            
+            let zone = 'Central';
+            if (Array.isArray(train.currentLocation) && train.currentLocation.length === 2) {
+               const coords = train.currentLocation;
+               if (coords[1] > 26) zone = 'Northern';
+               else if (coords[1] < 18) zone = 'Southern';
+               else if (coords[0] > 82) zone = 'Eastern';
+               else if (coords[0] < 75) zone = 'Western';
+            }
+            
+            deduplicatedLiveTrains.push({...train, zone});
          }
        }
        mockTrains = deduplicatedLiveTrains;
@@ -559,6 +577,7 @@ let globalTimetable: any = null;
         }}
         mapStyle={mapStyle as any}
         mapLib={maplibregl as any}
+        attributionControl={false}
         interactiveLayerIds={
           ['central-zone', 'eastern-zone', 'north-eastern-zone', 'northern-zone', 'southern-zone', 'western-zone'].flatMap(zone => [
             `${zone}-stations-main`, 
@@ -873,7 +892,7 @@ let globalTimetable: any = null;
         onMouseLeave={(e) => e.currentTarget.style.transform = 'none'}
       >
         <ArrowLeft size={18} />
-        Dashboard
+        
       </div>
 
       {/* Traffic Density Toggle Button */}
@@ -884,7 +903,7 @@ let globalTimetable: any = null;
           bottom: '40px',
           left: '20px',
           transition: 'all 0.3s ease',
-          zIndex: 60,
+          zIndex: 0,
           background: showDensityHeatmap ? '#ef4444' : 'rgba(255, 255, 255, 0.95)',
           borderRadius: '8px',
           padding: '8px 16px',
@@ -902,7 +921,42 @@ let globalTimetable: any = null;
         onMouseLeave={(e) => e.currentTarget.style.transform = 'none'}
       >
         <Activity size={18} />
-        {showDensityHeatmap ? 'Hide Traffic Density' : 'Show Traffic Density'}
+        {showDensityHeatmap ? 'Traffic Density' : 'Traffic Density'}
+      </div>
+
+      {/* Left Sidebar Toggle Handle */}
+      <div 
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: isSidebarOpen ? '380px' : '0',
+          transform: 'translateY(-50%)',
+          transition: 'left 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          zIndex: 60,
+          background: '#ffffff',
+          borderTopRightRadius: '8px',
+          borderBottomRightRadius: '8px',
+          padding: '16px 8px',
+          boxShadow: '4px 0 12px rgba(0, 0, 0, 0.1)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          color: '#64748b',
+          border: '1px solid rgba(0, 0, 0, 0.05)',
+          borderLeft: 'none'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.color = '#3b82f6';
+          e.currentTarget.style.background = '#f8fafc';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.color = '#64748b';
+          e.currentTarget.style.background = '#ffffff';
+        }}
+      >
+        {isSidebarOpen ? <ChevronLeft size={24} /> : <ChevronRight size={24} />}
       </div>
 
       {/* Right Sidebar Toggle Handle */}
@@ -1769,7 +1823,7 @@ let globalTimetable: any = null;
             </button>
           </div>
 
-          <div style={{ position: 'relative', marginBottom: '16px' }}>
+          <div style={{ position: 'relative', marginBottom: '16px', flexShrink: 0 }}>
              <Search size={16} color="#64748b" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
              <input 
                type="text"
@@ -1789,12 +1843,38 @@ let globalTimetable: any = null;
              />
           </div>
 
+          <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', marginBottom: '16px', paddingBottom: '4px', scrollbarWidth: 'none', flexShrink: 0 }}>
+            {['All', 'Northern', 'Southern', 'Eastern', 'Western', 'Central'].map(zone => (
+              <button
+                key={zone}
+                onClick={() => { setVisibleTrainsCount(15); setSelectedZone(zone); }}
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: '16px',
+                  border: 'none',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  whiteSpace: 'nowrap',
+                  cursor: 'pointer',
+                  background: selectedZone === zone ? '#3b82f6' : '#f1f5f9',
+                  color: selectedZone === zone ? '#ffffff' : '#475569',
+                  transition: 'all 0.2s',
+                  flexShrink: 0
+                }}
+              >
+                {zone}
+              </button>
+            ))}
+          </div>
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {(() => {
-              const allFilteredTrains = memoizedMockTrains.filter((t: any) => 
-                (t.id && t.id.toLowerCase().includes(liveTrainSearchText.toLowerCase())) || 
-                (t.name && t.name.toLowerCase().includes(liveTrainSearchText.toLowerCase()))
-              );
+              const allFilteredTrains = memoizedMockTrains.filter((t: any) => {
+                const matchesSearch = (t.id && t.id.toLowerCase().includes(liveTrainSearchText.toLowerCase())) || 
+                                      (t.name && t.name.toLowerCase().includes(liveTrainSearchText.toLowerCase()));
+                const matchesZone = selectedZone === 'All' || t.zone === selectedZone;
+                return matchesSearch && matchesZone;
+              });
                 
               const displayTrains = allFilteredTrains.slice(0, visibleTrainsCount);
 
@@ -1852,7 +1932,12 @@ let globalTimetable: any = null;
                       <div style={{ background: '#e0e7ff', color: '#4f46e5', fontWeight: 700, fontSize: '11px', padding: '3px 6px', borderRadius: '4px' }}>
                         {train.id}
                       </div>
-                      <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '140px' }} title={train.name}>
+                      {train.zone && (
+                        <div style={{ background: '#f1f5f9', color: '#64748b', fontWeight: 600, fontSize: '9px', padding: '2px 4px', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                          {train.zone}
+                        </div>
+                      )}
+                      <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100px' }} title={train.name}>
                         {train.name}
                       </div>
                     </div>
