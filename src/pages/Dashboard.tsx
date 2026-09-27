@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Train, Clock, AlertTriangle, Activity, CheckCircle2, Info, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { Train, Clock, AlertTriangle, Activity, CheckCircle2, Info, X, ChevronDown, ChevronUp, Target } from 'lucide-react';
 import { useWebSocket, type Train as TrainType } from '../context/WebSocketContext';
 import { MonthContextSelector } from '../components/MonthContextSelector';
 import { TrainSearch } from '../components/TrainSearch';
@@ -16,7 +16,7 @@ const RouteModal: React.FC<{ routeName: string; trains: TrainType[]; onClose: ()
   return (
     <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
       <div className="bg-background border border-border rounded-xl w-full max-w-6xl shadow-2xl max-h-[90vh] flex flex-col overflow-hidden text-text">
-        
+
         {/* Modal Header */}
         <div className="p-5 border-b border-border flex justify-between items-center bg-surface">
           <div className="flex items-center gap-3">
@@ -36,7 +36,7 @@ const RouteModal: React.FC<{ routeName: string; trains: TrainType[]; onClose: ()
             <X className="w-5 h-5" />
           </button>
         </div>
-        
+
         <div className="p-6 overflow-y-auto flex-1 space-y-6">
           {trains.length === 0 ? (
             <div className="text-center text-textMuted py-12 bg-surface/40 rounded-xl border border-border">
@@ -51,7 +51,7 @@ const RouteModal: React.FC<{ routeName: string; trains: TrainType[]; onClose: ()
 
               return (
                 <div key={train.id} className="p-5 border border-border rounded-xl bg-surface shadow-sm space-y-4">
-                  
+
                   {/* Train Header */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
@@ -66,18 +66,17 @@ const RouteModal: React.FC<{ routeName: string; trains: TrainType[]; onClose: ()
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className={`px-2.5 py-1 text-xs font-bold rounded-full border ${
-                        train.status === 'ON_TIME'
-                          ? 'bg-successBg text-success border-success/20'
-                          : train.status === 'DELAYED'
+                      <span className={`px-2.5 py-1 text-xs font-bold rounded-full border ${train.status === 'ON_TIME'
+                        ? 'bg-successBg text-success border-success/20'
+                        : train.status === 'DELAYED'
                           ? 'bg-warningBg text-warning border-warning/20'
                           : 'bg-criticalBg text-critical border-critical/20'
-                      }`}>
+                        }`}>
                         {train.status.replace('_', ' ')}
                       </span>
                     </div>
                   </div>
-                  
+
                   {/* Key Operational KPI Grid */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-background p-4 rounded-lg border border-border">
                     <div>
@@ -99,7 +98,7 @@ const RouteModal: React.FC<{ routeName: string; trains: TrainType[]; onClose: ()
                       <div className="font-bold text-sm text-success mt-0.5">{train.confidence}%</div>
                     </div>
                   </div>
-                  
+
                   {/* Active Delay / Restriction Alert Banner */}
                   {train.delayReason && train.delayReason !== 'None' && (
                     <div className="p-3 bg-criticalBg border border-critical/20 rounded-lg flex items-start gap-2.5">
@@ -127,7 +126,7 @@ const RouteModal: React.FC<{ routeName: string; trains: TrainType[]; onClose: ()
                     {isWhyOpen && (
                       <div className="p-4 border-t border-border space-y-3 text-xs">
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                          
+
                           {/* Tier 1: Historical Context */}
                           <div className="p-3 bg-surface border border-border rounded-lg space-y-1">
                             <div className="font-bold text-primary uppercase text-[11px] flex items-center gap-1.5">
@@ -213,7 +212,7 @@ const RouteModal: React.FC<{ routeName: string; trains: TrainType[]; onClose: ()
                             {(train.timeline || []).map((st: any, i: number) => {
                               const isTerminal = i === (train.timeline?.length || 0) - 1;
                               const stationConfidence = Math.max(45, train.confidence - (i * 2));
-                              
+
                               return (
                                 <tr key={i} className="hover:bg-surface transition-colors">
                                   <td className="py-2.5 px-3">
@@ -226,11 +225,10 @@ const RouteModal: React.FC<{ routeName: string; trains: TrainType[]; onClose: ()
                                   <td className="py-2.5 px-3 text-text">{st.scheduled}</td>
                                   <td className="py-2.5 px-3 font-bold text-primary">{st.predicted}</td>
                                   <td className="py-2.5 px-3">
-                                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold ${
-                                      st.delay > 15 ? 'bg-criticalBg text-critical border border-critical/20' :
+                                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold ${st.delay > 15 ? 'bg-criticalBg text-critical border border-critical/20' :
                                       st.delay > 0 ? 'bg-warningBg text-warning border border-warning/20' :
-                                      'bg-successBg text-success border border-success/20'
-                                    }`}>
+                                        'bg-successBg text-success border border-success/20'
+                                      }`}>
                                       {st.delay > 0 ? `+${st.delay}m` : 'On Time'}
                                     </span>
                                   </td>
@@ -313,7 +311,7 @@ export const Dashboard: React.FC = () => {
   const { liveTrains } = useWebSocket();
   const [metrics, setMetrics] = React.useState({ accuracy: 94.2 });
   const [selectedRoute, setSelectedRoute] = React.useState<string | null>(null);
-  
+
   React.useEffect(() => {
     fetch('http://localhost:8000/api/metrics')
       .then(res => res.json())
@@ -325,7 +323,7 @@ export const Dashboard: React.FC = () => {
   const onTimeCount = liveTrains.filter(t => t.status === 'ON_TIME').length;
   const delayedCount = liveTrains.filter(t => t.status === 'DELAYED').length;
   const criticalCount = liveTrains.filter(t => t.status === 'CRITICAL').length;
-  
+
   const onTimePct = activeCount ? Math.round((onTimeCount / activeCount) * 100) : 0;
   const delayedPct = activeCount ? Math.round((delayedCount / activeCount) * 100) : 0;
   const criticalPct = activeCount ? Math.round((criticalCount / activeCount) * 100) : 0;
@@ -345,54 +343,8 @@ export const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-6 pb-12">
-      
-      {/* 1. Quick Status Secondary Header */}
-      <div className="flex flex-wrap gap-3 bg-surface p-3 rounded-xl border border-border shadow-sm mb-6">
-        {/* Network Level */}
-        <div className="flex items-center gap-2 bg-successBg text-success px-3 py-1.5 rounded-lg border border-success/20 flex-1 min-w-[200px]">
-          <Activity className="w-4 h-4 shrink-0" />
-          <div className="flex flex-col">
-            <span className="text-[10px] uppercase font-bold opacity-80">Network Status</span>
-            <span className="text-xs font-bold">Level 1: Normal Ops</span>
-          </div>
-        </div>
 
-        {/* AI Core */}
-        <div className="flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-lg border border-primary/20 flex-1 min-w-[200px]">
-          <Target className="w-4 h-4 shrink-0" />
-          <div className="flex flex-col">
-            <span className="text-[10px] uppercase font-bold opacity-80">AI Core Health</span>
-            <span className="text-xs font-bold">Systems 1-3 Online (99.8%)</span>
-          </div>
-        </div>
 
-        {/* Maintenance Blocks */}
-        <div className="flex items-center gap-2 bg-warningBg text-warning px-3 py-1.5 rounded-lg border border-warning/20 flex-1 min-w-[200px]">
-          <AlertTriangle className="w-4 h-4 shrink-0" />
-          <div className="flex flex-col">
-            <span className="text-[10px] uppercase font-bold opacity-80">Active Blocks</span>
-            <span className="text-xs font-bold">2 Maintenance Zones</span>
-          </div>
-        </div>
-
-        {/* Weather Alerts */}
-        <div className="flex items-center gap-2 bg-criticalBg text-critical px-3 py-1.5 rounded-lg border border-critical/20 flex-1 min-w-[200px]">
-          <Info className="w-4 h-4 shrink-0" />
-          <div className="flex flex-col">
-            <span className="text-[10px] uppercase font-bold opacity-80">Weather Alerts</span>
-            <span className="text-xs font-bold">1 Fog Warning (Northern)</span>
-          </div>
-        </div>
-
-        {/* OHE Power Grid */}
-        <div className="flex items-center gap-2 bg-blue-500/10 text-blue-500 px-3 py-1.5 rounded-lg border border-blue-500/20 flex-1 min-w-[200px]">
-          <Activity className="w-4 h-4 shrink-0" />
-          <div className="flex flex-col">
-            <span className="text-[10px] uppercase font-bold opacity-80">OHE Grid</span>
-            <span className="text-xs font-bold">Stable @ 25kV</span>
-          </div>
-        </div>
-      </div>
 
       {/* 2. Compact Historical Context Toolbar */}
       {/* <MonthContextSelector simTime={simTime} /> */}
@@ -419,14 +371,14 @@ export const Dashboard: React.FC = () => {
         </h3>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {routeStats.map(stat => (
-            <RouteProgress 
+            <RouteProgress
               key={stat.route}
-              from={stat.route.split(' -> ')[0]} 
-              to={stat.route.split(' -> ')[1]} 
-              onTime={stat.onTime} 
-              trains={stat.count} 
-              avgDelay={stat.avgDelay} 
-              onTimePct={stat.onTimePct} 
+              from={stat.route.split(' -> ')[0]}
+              to={stat.route.split(' -> ')[1]}
+              onTime={stat.onTime}
+              trains={stat.count}
+              avgDelay={stat.avgDelay}
+              onTimePct={stat.onTimePct}
               onClick={() => setSelectedRoute(stat.route)}
             />
           ))}
@@ -461,8 +413,8 @@ export const Dashboard: React.FC = () => {
             </thead>
             <tbody className="divide-y divide-border bg-background">
               {liveTrains.map(train => (
-                <tr 
-                  key={train.id} 
+                <tr
+                  key={train.id}
                   onClick={() => setSelectedRoute(train.route)}
                   className="hover:bg-surface cursor-pointer transition-colors"
                 >
@@ -476,22 +428,20 @@ export const Dashboard: React.FC = () => {
                   <td className="py-3 px-4 text-text">{train.scheduledEta}</td>
                   <td className="py-3 px-4 font-bold text-primary">{train.aiEta}</td>
                   <td className="py-3 px-4">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold ${
-                      train.delayMin > 15 ? 'bg-criticalBg text-critical border border-critical/20' :
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold ${train.delayMin > 15 ? 'bg-criticalBg text-critical border border-critical/20' :
                       train.delayMin > 0 ? 'bg-warningBg text-warning border border-warning/20' :
-                      'bg-successBg text-success border border-success/20'
-                    }`}>
+                        'bg-successBg text-success border border-success/20'
+                      }`}>
                       {train.delayMin > 0 ? `+${train.delayMin}m` : 'On Time'}
                     </span>
                   </td>
                   <td className="py-3 px-4 text-right">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${
-                      train.status === 'ON_TIME'
-                        ? 'bg-successBg text-success border-success/20'
-                        : train.status === 'DELAYED'
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${train.status === 'ON_TIME'
+                      ? 'bg-successBg text-success border-success/20'
+                      : train.status === 'DELAYED'
                         ? 'bg-warningBg text-warning border-warning/20'
                         : 'bg-criticalBg text-critical border-critical/20'
-                    }`}>
+                      }`}>
                       {train.status.replace('_', ' ')}
                     </span>
                   </td>
@@ -504,10 +454,10 @@ export const Dashboard: React.FC = () => {
 
       {/* Route Detail Modal with 4-Tier Diagnostics */}
       {selectedRoute && (
-        <RouteModal 
-          routeName={selectedRoute} 
-          trains={liveTrains.filter(t => t.route === selectedRoute)} 
-          onClose={() => setSelectedRoute(null)} 
+        <RouteModal
+          routeName={selectedRoute}
+          trains={liveTrains.filter(t => t.route === selectedRoute)}
+          onClose={() => setSelectedRoute(null)}
         />
       )}
     </div>
