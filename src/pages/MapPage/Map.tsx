@@ -444,7 +444,7 @@ let globalTimetable: any = null;
       if (!timetable || Object.keys(timetable).length === 0) return [];
       
       const uniqueNames = new Set();
-      const uniqueTrains = [];
+      const uniqueTrains: [string, any][] = [];
       for (const [id, t] of Object.entries(timetable)) {
          if (!uniqueNames.has((t as any).n)) {
             uniqueNames.add((t as any).n);
@@ -453,7 +453,7 @@ let globalTimetable: any = null;
          if (uniqueTrains.length >= 100) break;
       }
       
-      mockTrains = uniqueTrains.map(([id, t]: [string, any], index) => {
+      mockTrains = uniqueTrains.map(([id, t], index) => {
         const stops = t.s;
         const randDelay = Math.floor(Math.sin(index + mockTick) * 30);
         const currStopIdx = Math.floor(stops.length / 2);

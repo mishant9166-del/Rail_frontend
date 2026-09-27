@@ -67,7 +67,7 @@ export const TrainSearch: React.FC = () => {
     setSelection: (val: string) => void,
     closeDropdown: () => void,
     isTrain: boolean,
-    listRef: React.RefObject<HTMLDivElement>
+    listRef: any
   ) => {
     if (e.key === 'ArrowDown') {
       e.preventDefault();
@@ -97,7 +97,7 @@ export const TrainSearch: React.FC = () => {
     }
   };
 
-  const scrollToActive = (ref: React.RefObject<HTMLDivElement>, index: number) => {
+  const scrollToActive = (ref: any, index: number) => {
     if (ref.current) {
       const activeEl = ref.current.children[index] as HTMLElement;
       if (activeEl) {
